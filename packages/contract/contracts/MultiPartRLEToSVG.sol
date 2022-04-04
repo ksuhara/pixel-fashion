@@ -5,11 +5,12 @@
 pragma solidity ^0.8.6;
 
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
+import "hardhat/console.sol";
 
 library MultiPartRLEToSVG {
   using Strings for uint256;
   struct SVGParams {
-    bytes parts;
+    bytes[] parts;
     string background;
   }
 
@@ -27,23 +28,22 @@ library MultiPartRLEToSVG {
 
   struct DecodedImage {
     ContentBounds bounds;
-    uint256 width;
     Rect[] rects;
   }
 
   /**
    * @notice Given RLE image parts and color palettes, merge to generate a single SVG image.
    */
-  function generateSVG(SVGParams memory params, string[] storage palette) internal view returns (string memory svg) {
+  function generateSVG(SVGParams memory params, string[][] memory palettes) internal view returns (string memory svg) {
     // prettier-ignore
     return
       string(
         abi.encodePacked(
           '<svg width="320" height="320" viewBox="0 0 320 320" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">',
           '<rect width="100%" height="100%" fill="#',
-          palette[0],
+          params.background,
           '" />',
-          _generateSVGRects(params, palette),
+          _generateSVGRects(params, palettes),
           "</svg>"
         )
       );
@@ -53,7 +53,7 @@ library MultiPartRLEToSVG {
    * @notice Given RLE image parts and color palettes, generate SVG rects.
    */
   // prettier-ignore
-  function _generateSVGRects(SVGParams memory params, string[] storage palette)
+  function _generateSVGRects(SVGParams memory params, string[][] memory palettes)
         private
         view
         returns (string memory svg)
@@ -66,51 +66,66 @@ library MultiPartRLEToSVG {
             "320" 
         ];
         string memory rects;
-        DecodedImage memory image = _decodeRLEImage(params.parts);
-        uint256 currentX = image.bounds.left;
-        uint256 currentY = image.bounds.top;
-        string[4] memory buffer;
-        string memory part;
+        for (uint8 p = 0; p < params.parts.length; p++) {
+            DecodedImage memory image = _decodeRLEImage(params.parts[p]);
+            string[] memory palette = palettes[p];
+            uint256 currentX = image.bounds.left;
+            uint256 currentY = image.bounds.top;
+            uint256 cursor;
+            string[16] memory buffer;
 
-        for (uint256 i = 0; i < image.rects.length; i++) {
-            Rect memory rect = image.rects[i];
-            if (rect.colorIndex != 0) {
-                buffer[0] = lookup[rect.length];      // width
-                buffer[1] = lookup[currentX];         // x
-                buffer[2] = lookup[currentY];         // y
-                buffer[3] = palette[rect.colorIndex - 1]; // color
-
-                part = string(abi.encodePacked(part, _getChunk(buffer)));
+            string memory part;
+            for (uint256 i = 0; i < image.rects.length; i++) {
+                Rect memory rect = image.rects[i];
+                if (rect.colorIndex != 0) {
+                    buffer[cursor] = lookup[rect.length];          // width
+                    buffer[cursor + 1] = lookup[currentX];         // x
+                    buffer[cursor + 2] = lookup[currentY];         // y
+                    buffer[cursor + 3] = palette[rect.colorIndex -1]; // color
+                    cursor += 4;
+                    if (cursor >= 16) {
+                      
+                        part = string(abi.encodePacked(part, _getChunk(cursor, buffer)));
+                        cursor = 0;
+                    }
+                }
+                currentX += rect.length;
+                if (currentX == image.bounds.right) {
+                    currentX = image.bounds.left;
+                    currentY++;
+                }
             }
 
-            currentX += rect.length;
-            if (currentX - image.bounds.left == image.width) {
-                currentX = image.bounds.left;
-                currentY++;
+            if (cursor != 0) {
+                part = string(abi.encodePacked(part, _getChunk(cursor, buffer)));
             }
+            rects = string(abi.encodePacked(rects, part));
         }
-        rects = string(abi.encodePacked(rects, part));
         return rects;
     }
 
   /**
    * @notice Return a string that consists of all rects in the provided `buffer`.
    */
-  function _getChunk(string[4] memory buffer) private pure returns (string memory) {
-    return
-      string(
+  function _getChunk(uint256 cursor, string[16] memory buffer) private view returns (string memory) {
+    string memory chunk;
+    for (uint256 i = 0; i < cursor; i += 4) {
+      chunk = string(
         abi.encodePacked(
+          chunk,
           '<rect width="',
-          buffer[0],
+          buffer[i],
           '" height="10" x="',
-          buffer[1],
+          buffer[i + 1],
           '" y="',
-          buffer[2],
+          buffer[i + 2],
           '" fill="#',
-          buffer[3],
+          buffer[i + 3],
           '" />'
         )
       );
+    }
+    return chunk;
   }
 
   /**
@@ -123,16 +138,13 @@ library MultiPartRLEToSVG {
       bottom: uint8(image[3]),
       left: uint8(image[4])
     });
-    uint256 width = bounds.right - bounds.left;
 
     uint256 cursor;
     Rect[] memory rects = new Rect[]((image.length - 5) / 2);
-
     for (uint256 i = 5; i < image.length; i += 2) {
       rects[cursor] = Rect({length: uint8(image[i]), colorIndex: uint8(image[i + 1])});
-
       cursor++;
     }
-    return DecodedImage({bounds: bounds, width: width, rects: rects});
+    return DecodedImage({bounds: bounds, rects: rects});
   }
 }

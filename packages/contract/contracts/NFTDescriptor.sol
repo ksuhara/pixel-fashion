@@ -6,27 +6,32 @@ pragma solidity ^0.8.6;
 
 import "@openzeppelin/contracts/utils/Base64.sol";
 import {MultiPartRLEToSVG} from "./MultiPartRLEToSVG.sol";
+import "hardhat/console.sol";
 
 library NFTDescriptor {
+  struct Accessory {
+    address contractAddress;
+    uint256 tokenId;
+  }
   struct TokenURIParams {
     string name;
     string description;
-    bytes parts;
+    bytes[] parts;
+    string background;
   }
 
   /**
    * @notice Construct an ERC721 token URI.
    */
-  function constructTokenURI(TokenURIParams memory params, string[] storage palette)
+  function constructTokenURI(TokenURIParams memory params, string[][] memory palettes)
     public
     view
     returns (string memory)
   {
     string memory image = generateSVGImage(
-      MultiPartRLEToSVG.SVGParams({parts: params.parts, background: palette[0]}),
-      palette
+      MultiPartRLEToSVG.SVGParams({parts: params.parts, background: params.background}),
+      palettes
     );
-
     return
       string(
         abi.encodePacked(
@@ -52,11 +57,11 @@ library NFTDescriptor {
   /**
    * @notice Generate an SVG image for use in the ERC721 token URI.
    */
-  function generateSVGImage(MultiPartRLEToSVG.SVGParams memory params, string[] storage palette)
+  function generateSVGImage(MultiPartRLEToSVG.SVGParams memory params, string[][] memory palettes)
     public
     view
     returns (string memory svg)
   {
-    return Base64.encode(bytes(MultiPartRLEToSVG.generateSVG(params, palette)));
+    return Base64.encode(bytes(MultiPartRLEToSVG.generateSVG(params, palettes)));
   }
 }
