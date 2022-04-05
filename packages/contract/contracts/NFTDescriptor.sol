@@ -9,10 +9,6 @@ import {MultiPartRLEToSVG} from "./MultiPartRLEToSVG.sol";
 import "hardhat/console.sol";
 
 library NFTDescriptor {
-  struct Accessory {
-    address contractAddress;
-    uint256 tokenId;
-  }
   struct TokenURIParams {
     string name;
     string description;

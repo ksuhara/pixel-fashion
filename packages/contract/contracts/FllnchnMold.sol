@@ -6,6 +6,7 @@ import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/StringsUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
+import "@openzeppelin/contracts/interfaces/IERC2981.sol";
 
 import {NFTDescriptor} from "./NFTDescriptor.sol";
 
@@ -13,7 +14,7 @@ import {IFllnchn} from "./IFllnchn.sol";
 
 import "hardhat/console.sol";
 
-contract FllnchnMold is Initializable, ERC721Upgradeable, OwnableUpgradeable {
+contract FllnchnMold is Initializable, ERC721Upgradeable, OwnableUpgradeable, IERC2981 {
   using StringsUpgradeable for uint256;
   using SafeMathUpgradeable for uint256;
 
@@ -21,6 +22,13 @@ contract FllnchnMold is Initializable, ERC721Upgradeable, OwnableUpgradeable {
     address contractAddress;
     uint256 tokenId;
   }
+
+  struct Royalty {
+    address recipient;
+    uint256 salePrice;
+  }
+
+  mapping(uint256 => Royalty) internal _royalties;
 
   mapping(uint256 => string[]) public palettes;
   mapping(uint256 => string) public names;
@@ -41,7 +49,7 @@ contract FllnchnMold is Initializable, ERC721Upgradeable, OwnableUpgradeable {
     contractName = _name;
   }
 
-  function supportsInterface(bytes4 _interfaceId) public view override(ERC721Upgradeable) returns (bool) {
+  function supportsInterface(bytes4 _interfaceId) public view override(ERC721Upgradeable, IERC165) returns (bool) {
     return super.supportsInterface(_interfaceId);
   }
 
@@ -147,5 +155,22 @@ contract FllnchnMold is Initializable, ERC721Upgradeable, OwnableUpgradeable {
   function removeAccessories(uint256 tokenId) public {
     require(this.ownerOf(tokenId) == msg.sender, "Fllnchn: must be owner of this token");
     delete accessories[tokenId];
+  }
+
+  function _setRoyalties(
+    uint256 _tokenId,
+    address _receiver,
+    uint256 _percentage
+  ) public onlyOwner {
+    require(_percentage <= 10000, "ERC2981Royalities: Too high");
+    _royalties[_tokenId] = Royalty(_receiver, _percentage);
+  }
+
+  function royaltyInfo(uint256 tokenId, uint256 salePrice) public view override returns (address, uint256) {
+    require(_exists(tokenId), "Fllnchn: royalty query for nonexistent token");
+    if (_royalties[tokenId].recipient != address(0)) {
+      return (_royalties[tokenId].recipient, (salePrice * _royalties[tokenId].salePrice) / 10000);
+    }
+    return (address(0x0), 0);
   }
 }

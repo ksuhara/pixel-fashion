@@ -21,10 +21,7 @@ const decodeImage = (image: string): DecodedImage => {
     rects:
       rects
         ?.match(/.{1,4}/g)
-        ?.map((rect) => [
-          parseInt(rect.substring(0, 2), 16),
-          parseInt(rect.substring(2, 4), 16),
-        ]) ?? [],
+        ?.map((rect) => [parseInt(rect.substring(0, 2), 16), parseInt(rect.substring(2, 4), 16)]) ?? [],
   };
 };
 
@@ -34,10 +31,7 @@ const decodeImage = (image: string): DecodedImage => {
  * @param paletteColors The hex palette colors
  * @param bgColor The hex background color
  */
-export const buildSVG = (
-  parts: { data: string }[],
-  paletteColors: string[]
-): string => {
+export const buildSVG = (parts: { data: string }[], paletteColors: string[]): string => {
   const svgWithoutEndTag = parts.reduce((result, part) => {
     const svgRects: string[] = [];
     const { bounds, rects } = decodeImage(part.data);
@@ -51,9 +45,7 @@ export const buildSVG = (
 
       if (colorIndex !== 0) {
         svgRects.push(
-          `<rect width="${length * 10}" height="10" x="${currentX * 10}" y="${
-            currentY * 10
-          }" fill="#${hexColor}" />`
+          `<rect width="${length * 10}" height="10" x="${currentX * 10}" y="${currentY * 10}" fill="#${hexColor}" />`
         );
       }
 
@@ -66,6 +58,39 @@ export const buildSVG = (
     result += svgRects.join("");
     return result;
   }, `<svg width="320" height="320" viewBox="0 0 320 320" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges"><rect width="100%" height="100%" fill="#${paletteColors[0]}" /><use href="#animated1"/>`);
+
+  return `${svgWithoutEndTag}</svg>`;
+};
+
+export const buildSVGWithAccessory = (parts: string[], paletteColors: string[][]): string => {
+  console.log(parts, "parts");
+  console.log(paletteColors, "paletteColors");
+  const svgWithoutEndTag = parts.reduce((result, part, index) => {
+    const svgRects: string[] = [];
+    const { bounds, rects } = decodeImage(part);
+
+    let currentX = bounds.left;
+    let currentY = bounds.top;
+
+    rects.forEach((rect, i) => {
+      const [length, colorIndex] = rect;
+      const hexColor = paletteColors[index][colorIndex - 1];
+
+      if (colorIndex !== 0) {
+        svgRects.push(
+          `<rect width="${length * 10}" height="10" x="${currentX * 10}" y="${currentY * 10}" fill="#${hexColor}" />`
+        );
+      }
+
+      currentX += length;
+      if (currentX === bounds.right) {
+        currentX = bounds.left;
+        currentY++;
+      }
+    });
+    result += svgRects.join("");
+    return result;
+  }, `<svg width="320" height="320" viewBox="0 0 320 320" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges"><rect width="100%" height="100%" fill="#${paletteColors[0]}" />`);
 
   return `${svgWithoutEndTag}</svg>`;
 };

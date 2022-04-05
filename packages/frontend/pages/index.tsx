@@ -50,9 +50,6 @@ const Home: NextPage = () => {
   const [txHash, setTxHash] = React.useState("");
   const [deployStatus, setDeployStatus] = React.useState("ended");
   const [deployTxHash, setDeployTxHash] = React.useState("");
-  const [tokenId, setTokenId] = React.useState("");
-  const [accessoryAddress, setAccessoryAddress] = React.useState("");
-  const [accessoryTokenId, setAccessoryTokenId] = React.useState("");
 
   const generateSeed = (event: any) => {
     event.preventDefault();
@@ -162,30 +159,6 @@ const Home: NextPage = () => {
     }
   };
 
-  const setAccessoryHandler = async () => {
-    try {
-      const { ethereum } = window;
-
-      if (ethereum) {
-        const provider = new ethers.providers.Web3Provider(ethereum);
-        const signer = provider.getSigner();
-        const { fllnchnMoldAddress } = getContractsForChainId(chainId);
-        const moldContract = new ethers.Contract(fllnchnMoldAddress, fllnchnAbi, provider);
-
-        const nftTxn = await moldContract
-          .attach(moldAddress)
-          .connect(signer)
-          .setAccessory(tokenId, accessoryAddress, accessoryTokenId);
-
-        console.log(`Set, see transaction: https://rinkeby.etherscan.io/tx/${nftTxn.hash}`);
-      } else {
-        console.log("Ethereum object does not exist");
-      }
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
   React.useEffect(() => {
     checkWalletIsConnected();
   }, []);
@@ -250,7 +223,7 @@ const Home: NextPage = () => {
             >
               <option value="4">Rinkeby</option>
               <option value="137">Polygon mainnet</option>
-              <option value="592">Astar mainnet</option>
+              <option value="592">Astar Network mainnet</option>
             </Select>
           </Box>
           <VStack my="8">
@@ -400,39 +373,6 @@ const Home: NextPage = () => {
               {mintingStatus == "ended" && <Icon as={FaCheckCircle} w={8} h={8} color="green"></Icon>}
             </Flex>
           </Center>
-        )}
-        <Input
-          placeholder=""
-          my="1"
-          w={{ base: "xs", sm: "md" }}
-          variant="filled"
-          value={tokenId}
-          onChange={(e) => setTokenId(e.target.value)}
-        ></Input>
-        <Input
-          placeholder="0x..."
-          my="1"
-          w={{ base: "xs", sm: "md" }}
-          variant="filled"
-          value={accessoryAddress}
-          onChange={(e) => setAccessoryAddress(e.target.value)}
-        ></Input>
-        <Input
-          placeholder=""
-          my="1"
-          w={{ base: "xs", sm: "md" }}
-          variant="filled"
-          value={accessoryTokenId}
-          onChange={(e) => setAccessoryTokenId(e.target.value)}
-        ></Input>
-        {currentAccount ? (
-          <Button my="4" size="lg" colorScheme="blue" fontWeight="bold" onClick={setAccessoryHandler}>
-            ⑥Set Accessory
-          </Button>
-        ) : (
-          <Button my="4" size="lg" colorScheme="blue" fontWeight="bold" onClick={connectWalletHandler}>
-            ConnectWallet
-          </Button>
         )}
       </Container>
     </>

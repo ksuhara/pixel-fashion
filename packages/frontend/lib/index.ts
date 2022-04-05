@@ -1,5 +1,5 @@
 export { PNGCollectionEncoder } from "./png-collection-encoder";
-export { buildSVG } from "./svg-builder";
+export { buildSVG, buildSVGWithAccessory } from "./svg-builder";
 export type {
   IEncoder,
   Rect,
