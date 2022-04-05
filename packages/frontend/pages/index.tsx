@@ -26,7 +26,7 @@ import { Header } from "../components/Header";
 import contract from "../constants/contract.json";
 import { ChainId, explorers, getContractsForChainId } from "../lib/web3";
 
-const { fllnchnAbi, chocofactoryAbi } = contract;
+const { pixelFasionAbi, chocofactoryAbi } = contract;
 
 declare global {
   interface Window {
@@ -134,8 +134,8 @@ const Home: NextPage = () => {
       if (ethereum) {
         const provider = new ethers.providers.Web3Provider(ethereum);
         const signer = provider.getSigner();
-        const { fllnchnMoldAddress } = getContractsForChainId(chainId);
-        const moldContract = new ethers.Contract(fllnchnMoldAddress, fllnchnAbi, provider);
+        const { pixelFasionAddress } = getContractsForChainId(chainId);
+        const moldContract = new ethers.Contract(pixelFasionAddress, pixelFasionAbi, provider);
 
         const address = signer.getAddress();
 
@@ -178,17 +178,17 @@ const Home: NextPage = () => {
     const provider = new ethers.providers.Web3Provider(ethereum);
     const signer = provider.getSigner();
     console.log(chainId);
-    const { chocofactoryAddress, fllnchnMoldAddress } = getContractsForChainId(chainId);
+    const { chocofactoryAddress, pixelFasionAddress } = getContractsForChainId(chainId);
     const chocofactoryContract = new ethers.Contract(chocofactoryAddress, chocofactoryAbi, provider);
 
     const signerAddress = await signer.getAddress();
     const deployedMold = await chocofactoryContract.predictDeployResult(
-      fllnchnMoldAddress,
+      pixelFasionAddress,
       signerAddress,
       contractName,
       symbol
     );
-    const deployTxn = await chocofactoryContract.connect(signer).deploy(fllnchnMoldAddress, contractName, symbol);
+    const deployTxn = await chocofactoryContract.connect(signer).deploy(pixelFasionAddress, contractName, symbol);
 
     setDeployStatus("started");
     setDeployTxHash(deployTxn.hash);

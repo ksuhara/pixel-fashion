@@ -10,11 +10,9 @@ import "@openzeppelin/contracts/interfaces/IERC2981.sol";
 
 import {NFTDescriptor} from "./NFTDescriptor.sol";
 
-import {IFllnchn} from "./IFllnchn.sol";
+import {IPixelFasion} from "./IPixelFasion.sol";
 
-import "hardhat/console.sol";
-
-contract FllnchnMold is Initializable, ERC721Upgradeable, OwnableUpgradeable, IERC2981 {
+contract PixelFasionMold is Initializable, ERC721Upgradeable, OwnableUpgradeable, IERC2981 {
   using StringsUpgradeable for uint256;
   using SafeMathUpgradeable for uint256;
 
@@ -62,10 +60,10 @@ contract FllnchnMold is Initializable, ERC721Upgradeable, OwnableUpgradeable, IE
     address _accessoryAddress,
     uint256 _accessorieTokenId
   ) public {
-    require(this.ownerOf(tokenId) == msg.sender, "Fllnchn: must be owner of this token");
+    require(this.ownerOf(tokenId) == msg.sender, "PixelFasion: must be owner of this token");
     require(
-      IFllnchn(_accessoryAddress).ownerOf(_accessorieTokenId) == msg.sender,
-      "Fllnchn: must be owner of accessory token"
+      IPixelFasion(_accessoryAddress).ownerOf(_accessorieTokenId) == msg.sender,
+      "PixelFasion: must be owner of accessory token"
     );
     accessories[tokenId].push(Accessory({contractAddress: _accessoryAddress, tokenId: _accessorieTokenId}));
   }
@@ -118,10 +116,10 @@ contract FllnchnMold is Initializable, ERC721Upgradeable, OwnableUpgradeable, IE
     NFTDescriptor.TokenURIParams memory params = NFTDescriptor.TokenURIParams({
       name: name,
       description: description,
-      parts: _getPartsForSeed(tokenId),
+      parts: getPartsForTokenId(tokenId),
       background: backgrounds[tokenId]
     });
-    return NFTDescriptor.constructTokenURI(params, _getPalletesForSeed(tokenId));
+    return NFTDescriptor.constructTokenURI(params, getPalletesForTokenId(tokenId));
   }
 
   function returnParts(uint256 tokenId) public view returns (bytes memory) {
@@ -132,20 +130,22 @@ contract FllnchnMold is Initializable, ERC721Upgradeable, OwnableUpgradeable, IE
     return palettes[tokenId];
   }
 
-  function _getPartsForSeed(uint256 tokenId) internal view returns (bytes[] memory) {
+  function getPartsForTokenId(uint256 tokenId) public view returns (bytes[] memory) {
     bytes[] memory _parts = new bytes[](accessories[tokenId].length + 1);
     _parts[0] = parts[tokenId];
     for (uint8 p = 0; p < accessories[tokenId].length; p++) {
-      _parts[p + 1] = IFllnchn(accessories[tokenId][p].contractAddress).returnParts(accessories[tokenId][p].tokenId);
+      _parts[p + 1] = IPixelFasion(accessories[tokenId][p].contractAddress).returnParts(
+        accessories[tokenId][p].tokenId
+      );
     }
     return _parts;
   }
 
-  function _getPalletesForSeed(uint256 tokenId) internal view returns (string[][] memory) {
+  function getPalletesForTokenId(uint256 tokenId) public view returns (string[][] memory) {
     string[][] memory _palletes = new string[][](accessories[tokenId].length + 1);
     _palletes[0] = palettes[tokenId];
     for (uint8 p = 0; p < accessories[tokenId].length; p++) {
-      _palletes[p + 1] = IFllnchn(accessories[tokenId][p].contractAddress).returnPalletes(
+      _palletes[p + 1] = IPixelFasion(accessories[tokenId][p].contractAddress).returnPalletes(
         accessories[tokenId][p].tokenId
       );
     }
@@ -153,11 +153,11 @@ contract FllnchnMold is Initializable, ERC721Upgradeable, OwnableUpgradeable, IE
   }
 
   function removeAccessories(uint256 tokenId) public {
-    require(this.ownerOf(tokenId) == msg.sender, "Fllnchn: must be owner of this token");
+    require(this.ownerOf(tokenId) == msg.sender, "PixelFasion: must be owner of this token");
     delete accessories[tokenId];
   }
 
-  function _setRoyalties(
+  function setRoyalties(
     uint256 _tokenId,
     address _receiver,
     uint256 _percentage
@@ -167,7 +167,7 @@ contract FllnchnMold is Initializable, ERC721Upgradeable, OwnableUpgradeable, IE
   }
 
   function royaltyInfo(uint256 tokenId, uint256 salePrice) public view override returns (address, uint256) {
-    require(_exists(tokenId), "Fllnchn: royalty query for nonexistent token");
+    require(_exists(tokenId), "PixelFasion: royalty query for nonexistent token");
     if (_royalties[tokenId].recipient != address(0)) {
       return (_royalties[tokenId].recipient, (salePrice * _royalties[tokenId].salePrice) / 10000);
     }
