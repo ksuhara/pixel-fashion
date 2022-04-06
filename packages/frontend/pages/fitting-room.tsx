@@ -280,13 +280,9 @@ const FittingRoom: NextPage = () => {
           </VStack>
         </Box>
         <VStack my="2">
-          {currentAccount ? (
+          {currentAccount && (
             <Button my="4" size="lg" colorScheme="gray" fontWeight="bold" onClick={removeAccessoriesHandler}>
               ※Remove All Accessories
-            </Button>
-          ) : (
-            <Button my="4" size="lg" colorScheme="blue" fontWeight="bold" onClick={connectWalletHandler}>
-              ConnectWallet
             </Button>
           )}
         </VStack>
