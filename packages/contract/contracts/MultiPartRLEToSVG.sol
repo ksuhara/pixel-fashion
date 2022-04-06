@@ -5,7 +5,6 @@
 pragma solidity ^0.8.6;
 
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
-import "hardhat/console.sol";
 
 library MultiPartRLEToSVG {
   using Strings for uint256;
@@ -34,8 +33,7 @@ library MultiPartRLEToSVG {
   /**
    * @notice Given RLE image parts and color palettes, merge to generate a single SVG image.
    */
-  function generateSVG(SVGParams memory params, string[][] memory palettes) internal view returns (string memory svg) {
-    // prettier-ignore
+  function generateSVG(SVGParams memory params, string[][] memory palettes) internal pure returns (string memory svg) {
     return
       string(
         abi.encodePacked(
@@ -55,7 +53,7 @@ library MultiPartRLEToSVG {
   // prettier-ignore
   function _generateSVGRects(SVGParams memory params, string[][] memory palettes)
         private
-        view
+        pure
         returns (string memory svg)
     {
         string[33] memory lookup = [
@@ -107,7 +105,7 @@ library MultiPartRLEToSVG {
   /**
    * @notice Return a string that consists of all rects in the provided `buffer`.
    */
-  function _getChunk(uint256 cursor, string[16] memory buffer) private view returns (string memory) {
+  function _getChunk(uint256 cursor, string[16] memory buffer) private pure returns (string memory) {
     string memory chunk;
     for (uint256 i = 0; i < cursor; i += 4) {
       chunk = string(

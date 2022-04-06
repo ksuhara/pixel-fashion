@@ -1,4 +1,4 @@
-import { Box, Image, Stack, Text } from "@chakra-ui/react";
+import { Box, Image, Link, Stack, Text } from "@chakra-ui/react";
 import Head from "next/head";
 import * as React from "react";
 
@@ -7,17 +7,16 @@ import { SocialMediaLinks } from "./SocialMediaLinks";
 export const Header = () => (
   <>
     <Head>
-      <title>Pixel Onchained</title>
+      <title>Pixel Fashion</title>
     </Head>
-    <Box role="contentinfo" mx="auto" maxW="7xl" py="4" px={{ base: "4", md: "8" }}>
+    <Box role="contentinfo" mx="auto" maxW="8xl" py="4" px={{ base: "4", md: "8" }}>
       <Stack>
         <Stack direction="row" spacing="4" align="center" justify="space-between">
-          <Image src="logo.png"></Image>
+          <Link href="/">
+            <Image src="logo.svg" w="12" alt="logo"></Image>
+          </Link>
           <SocialMediaLinks />
         </Stack>
-        <Text fontSize="sm" alignSelf={{ base: "center", sm: "start" }}>
-          Open Source and DYOR
-        </Text>
       </Stack>
     </Box>
   </>

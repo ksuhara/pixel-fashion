@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.6;
 
-interface IPixelFasion {
+interface IPixelFashion {
   function returnParts(uint256 tokenId) external view returns (bytes memory);
 
   function returnPalletes(uint256 tokenId) external view returns (string[] memory);

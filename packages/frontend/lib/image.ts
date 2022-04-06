@@ -75,6 +75,7 @@ export class Image {
     for (let y = 0; y < this._height; y++) {
       for (let x = 0; x < this._width; x++) {
         const { r, g, b, a } = getRgbaAt(x, y);
+        console.log(a);
         const hexColor = rgbToHex(r, g, b);
         // Insert the color if it does not yet exist
         if (!colors.has(hexColor)) {

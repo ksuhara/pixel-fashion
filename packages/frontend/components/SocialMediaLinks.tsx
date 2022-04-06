@@ -4,7 +4,7 @@ import { FaDiscord, FaGithub, FaTwitter } from "react-icons/fa";
 
 export const SocialMediaLinks = (props: ButtonGroupProps) => (
   <ButtonGroup variant="ghost" color="gray.600" {...props}>
-    <Link href="https://github.com/ksuhara/pixel-onchained" isExternal>
+    <Link href="https://github.com/ksuhara/pixel-fashion" isExternal>
       <IconButton aria-label="GitHub" icon={<FaGithub fontSize="20px" />} />
     </Link>
     <Link href="https://twitter.com/suhara_ponta" isExternal>

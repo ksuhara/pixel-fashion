@@ -4,7 +4,7 @@ const chocofactoryAddresses = {
   "592": "0x72cc6e601975C3357C749e5e4e97E893F4DEEbcA",
 };
 
-const pixelFasionAddresses = {
+const pixelFashionAddresses = {
   "4": "0x53508cFfa1c9704F25b54108EF0b7dF2cfF509eF",
   "137": "0x262c4075Bc8dae427b74Db99286ac2811ad995a9",
   "592": "0xEc9255C57A60335dD838C06846fE6bEF7CAC5BA5",
@@ -20,6 +20,6 @@ export type ChainId = "4" | "137" | "592";
 
 export const getContractsForChainId = (chainId: ChainId) => {
   const chocofactoryAddress = chocofactoryAddresses[chainId];
-  const pixelFasionAddress = pixelFasionAddresses[chainId];
-  return { chocofactoryAddress, pixelFasionAddress };
+  const pixelFashionAddress = pixelFashionAddresses[chainId];
+  return { chocofactoryAddress, pixelFashionAddress };
 };

@@ -6,7 +6,6 @@ pragma solidity ^0.8.6;
 
 import "@openzeppelin/contracts/utils/Base64.sol";
 import {MultiPartRLEToSVG} from "./MultiPartRLEToSVG.sol";
-import "hardhat/console.sol";
 
 library NFTDescriptor {
   struct TokenURIParams {

@@ -5,7 +5,7 @@ const func = async (hre: any) => {
   const nftDescripter = await deploy("NFTDescriptor", {
     from: deployer,
   });
-  await deploy("PixelFasionMold", {
+  await deploy("PixelFashionMold", {
     from: deployer,
     args: [],
     libraries: {
@@ -16,4 +16,4 @@ const func = async (hre: any) => {
 };
 
 export default func;
-module.exports.tags = ["PixelFasionMold"];
+module.exports.tags = ["PixelFashionMold"];

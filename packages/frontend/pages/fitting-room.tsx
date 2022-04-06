@@ -7,7 +7,7 @@ import React from "react";
 import { Header } from "../components/Header";
 import contract from "../constants/contract.json";
 import { ChainId, explorers, getContractsForChainId } from "../lib/web3";
-const { pixelFasionAbi } = contract;
+const { pixelFashionAbi } = contract;
 
 declare global {
   interface Window {
@@ -75,8 +75,8 @@ const FittingRoom: NextPage = () => {
       if (ethereum) {
         const provider = new ethers.providers.Web3Provider(ethereum);
         const signer = provider.getSigner();
-        const { pixelFasionAddress } = getContractsForChainId(chainId);
-        const moldContract = new ethers.Contract(pixelFasionAddress, pixelFasionAbi, provider);
+        const { pixelFashionAddress } = getContractsForChainId(chainId);
+        const moldContract = new ethers.Contract(pixelFashionAddress, pixelFashionAbi, provider);
 
         const nftTxn = await moldContract
           .attach(contractAddress)
@@ -98,15 +98,15 @@ const FittingRoom: NextPage = () => {
 
       if (ethereum) {
         const provider = new ethers.providers.Web3Provider(ethereum);
-        const { pixelFasionAddress } = getContractsForChainId(chainId);
-        const moldContract = new ethers.Contract(pixelFasionAddress, pixelFasionAbi, provider);
+        const { pixelFashionAddress } = getContractsForChainId(chainId);
+        const moldContract = new ethers.Contract(pixelFashionAddress, pixelFashionAbi, provider);
 
-        const partsOfBase = await moldContract.attach(contractAddress).returnParts(tokenId);
-        const partsOfAccessory = await moldContract.attach(accessoryAddress).returnParts(accessoryTokenId);
-        const parts = [partsOfBase, partsOfAccessory];
-        const colorsOfBase = await moldContract.attach(contractAddress).returnPalletes(tokenId);
-        const colorsOfAccessory = await moldContract.attach(accessoryAddress).returnPalletes(accessoryTokenId);
-        const colors = [colorsOfBase, colorsOfAccessory];
+        const partsOfBase = await moldContract.attach(contractAddress).getPartsForTokenId(tokenId);
+        const partsOfAccessory = await moldContract.attach(accessoryAddress).getPartsForTokenId(accessoryTokenId);
+        const parts = partsOfBase.concat(partsOfAccessory);
+        const colorsOfBase = await moldContract.attach(contractAddress).getPalletesForTokenId(tokenId);
+        const colorsOfAccessory = await moldContract.attach(accessoryAddress).getPalletesForTokenId(accessoryTokenId);
+        const colors = colorsOfBase.concat(colorsOfAccessory);
         axios
           .post("/api/dress-up", {
             parts: parts,
@@ -140,8 +140,8 @@ const FittingRoom: NextPage = () => {
       if (ethereum) {
         const provider = new ethers.providers.Web3Provider(ethereum);
         const signer = provider.getSigner();
-        const { pixelFasionAddress } = getContractsForChainId(chainId);
-        const moldContract = new ethers.Contract(pixelFasionAddress, pixelFasionAbi, provider);
+        const { pixelFashionAddress } = getContractsForChainId(chainId);
+        const moldContract = new ethers.Contract(pixelFashionAddress, pixelFashionAbi, provider);
 
         const nftTxn = await moldContract.attach(contractAddress).connect(signer).removeAccessories(tokenId);
 
@@ -155,8 +155,8 @@ const FittingRoom: NextPage = () => {
   };
   return (
     <>
+      <Header />
       <Container maxW="container.xl" textAlign="center" pb="10">
-        <Header />
         <Box maxW="2xl" mx="auto" px={{ base: "6", lg: "8" }} py={{ base: "4", sm: "4" }} textAlign="center">
           <Heading size="3xl" fontWeight="extrabold" letterSpacing="tight">
             Fitting Room

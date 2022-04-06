@@ -26,7 +26,7 @@ import { Header } from "../components/Header";
 import contract from "../constants/contract.json";
 import { ChainId, explorers, getContractsForChainId } from "../lib/web3";
 
-const { pixelFasionAbi, chocofactoryAbi } = contract;
+const { pixelFashionAbi, chocofactoryAbi } = contract;
 
 declare global {
   interface Window {
@@ -65,6 +65,7 @@ const Home: NextPage = () => {
         const buff = new Buffer(response.data.svg);
         const base64data = buff.toString("base64");
         setSvgString(base64data);
+        console.log(response.data.hexColors);
         setColors(response.data.hexColors);
       })
       .catch(function (err: any) {
@@ -134,8 +135,8 @@ const Home: NextPage = () => {
       if (ethereum) {
         const provider = new ethers.providers.Web3Provider(ethereum);
         const signer = provider.getSigner();
-        const { pixelFasionAddress } = getContractsForChainId(chainId);
-        const moldContract = new ethers.Contract(pixelFasionAddress, pixelFasionAbi, provider);
+        const { pixelFashionAddress } = getContractsForChainId(chainId);
+        const moldContract = new ethers.Contract(pixelFashionAddress, pixelFashionAbi, provider);
 
         const address = signer.getAddress();
 
@@ -177,18 +178,17 @@ const Home: NextPage = () => {
     const { ethereum } = window;
     const provider = new ethers.providers.Web3Provider(ethereum);
     const signer = provider.getSigner();
-    console.log(chainId);
-    const { chocofactoryAddress, pixelFasionAddress } = getContractsForChainId(chainId);
+    const { chocofactoryAddress, pixelFashionAddress } = getContractsForChainId(chainId);
     const chocofactoryContract = new ethers.Contract(chocofactoryAddress, chocofactoryAbi, provider);
 
     const signerAddress = await signer.getAddress();
     const deployedMold = await chocofactoryContract.predictDeployResult(
-      pixelFasionAddress,
+      pixelFashionAddress,
       signerAddress,
       contractName,
       symbol
     );
-    const deployTxn = await chocofactoryContract.connect(signer).deploy(pixelFasionAddress, contractName, symbol);
+    const deployTxn = await chocofactoryContract.connect(signer).deploy(pixelFashionAddress, contractName, symbol);
 
     setDeployStatus("started");
     setDeployTxHash(deployTxn.hash);
@@ -200,15 +200,15 @@ const Home: NextPage = () => {
 
   return (
     <>
+      <Header />
       <Container maxW="container.xl" textAlign="center" pb="10">
-        <Header />
         <Box as="section">
           <Box maxW="2xl" mx="auto" px={{ base: "6", lg: "8" }} py={{ base: "4", sm: "4" }} textAlign="center">
             <Heading size="3xl" fontWeight="extrabold" letterSpacing="tight">
-              Ready to Onchain?
+              Pixel Fashion Studio
             </Heading>
             <Text mt="4" fontSize="lg">
-              Mint your Full-Onchain pixel art NFT and immutable it.
+              Mint your Onchain pixel art NFT. Make your own fashion brand.
             </Text>
           </Box>
           <Box my="8">
@@ -234,7 +234,7 @@ const Home: NextPage = () => {
               If you already have a contract, please skip this and proceed to ② Input your contract address.
             </Text>
             <Input
-              placeholder="contract name(=collection name)"
+              placeholder="contract name (collection name)"
               my="1"
               w={{ base: "xs", sm: "md" }}
               variant="filled"
