@@ -269,7 +269,7 @@ const chocofactoryABI = [
   },
 ];
 
-describe.only("NFT", function () {
+describe("NFT", function () {
   let signer: SignerWithAddress;
   let notHolder: SignerWithAddress;
   let factoryContract: any;
@@ -282,12 +282,12 @@ describe.only("NFT", function () {
     factoryContract = new ethers.Contract("0x53B688a8Fb9e6a0bC8ca49bF0bBfddac4696ec72", chocofactoryABI, signer);
     const NFTDescriptorContract = await ethers.getContractFactory("NFTDescriptor");
     const descriptorContract = await NFTDescriptorContract.deploy();
-    const FllnchnMoldContract = await ethers.getContractFactory("FllnchnMold", {
+    const PixelFashionContract = await ethers.getContractFactory("PixelFashionMold", {
       libraries: {
         NFTDescriptor: descriptorContract.address,
       },
     });
-    const moldContract = await FllnchnMoldContract.deploy();
+    const moldContract = await PixelFashionContract.deploy();
     const deployedMold = await factoryContract.predictDeployResult(
       moldContract.address,
       signer.address,
@@ -353,11 +353,11 @@ describe.only("NFT", function () {
     await deployedMoldContract.setAccessory(1, deployedMoldContract2.address, 1);
     await deployedMoldContract.setAccessory(1, deployedMoldContract3.address, 1);
     await expect(deployedMoldContract.setAccessory(1, deployedMoldContract2.address, 2)).to.revertedWith(
-      "Fllnchn: must be owner of accessory token"
+      "PixelFashion: must be owner of accessory token"
     );
     await expect(
       deployedMoldContract.connect(notHolder).setAccessory(1, deployedMoldContract2.address, 1)
-    ).to.revertedWith("Fllnchn: must be owner of this token");
+    ).to.revertedWith("PixelFashion: must be owner of this token");
     const uri4 = await deployedMoldContract.tokenURI(1);
     console.log(uri4);
 
@@ -368,5 +368,27 @@ describe.only("NFT", function () {
     await deployedMoldContract.removeAccessories(1);
     const uri5 = await deployedMoldContract.tokenURI(1);
     console.log(uri5);
+  });
+  it("setRoyalties", async function () {
+    const name = "Name";
+    const seeds =
+      "0x00061b1b06050002010e0004000101020203010b0004000101050202010100020106000500010106020101020201010500040001010a02010105000400010101020101070201010600030001010a02010106000200010107020101030201010600020001010a02010101020101050002000101020201010702010101020101050002000101040201010402010102020101050003000101080201010302010104000400030104020101040201010300010103000101030202010203050201010100020101000300010106020103060201010300030001010602010306020101030003000101020201010a0201010300010002010302010103020101020201010202010104000101020201010202040102020101010201010102010104000100010102020201030001010102010103020101050002000201060002010202010106000c0002010700";
+
+    const colors = ["000000", "889FB8", "00E6FF", "00E6FF", "00E6FF"];
+    const bgColor = "FFFFFF";
+
+    await deployedMoldContract.mintNFT(name, seeds, colors, bgColor, signer.address);
+    await deployedMoldContract.mintNFT(name, seeds, colors, bgColor, signer.address);
+    await deployedMoldContract.setRoyalties(1, signer.address, 10000);
+    await deployedMoldContract.setRoyalties(2, signer.address, 5000);
+    await expect(deployedMoldContract.setRoyalties(1, signer.address, 10001)).to.revertedWith(
+      "ERC2981Royalities: Too high"
+    );
+    const royaltyInfo = await deployedMoldContract.royaltyInfo(1, 100000);
+    expect(royaltyInfo[0]).to.equal(signer.address);
+    expect(Number(royaltyInfo[1])).to.equal(100000);
+    const royaltyInfo2 = await deployedMoldContract.royaltyInfo(2, 10000);
+    expect(royaltyInfo2[0]).to.equal(signer.address);
+    expect(Number(royaltyInfo2[1])).to.equal(5000);
   });
 });

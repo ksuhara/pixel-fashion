@@ -1,8 +1,24 @@
-import { Box, Button, Center, Container, Heading, Image, Input, Select, Text, VStack } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Center,
+  Container,
+  Flex,
+  Heading,
+  Icon,
+  Image,
+  Input,
+  Link,
+  Select,
+  Spinner,
+  Text,
+  VStack,
+} from "@chakra-ui/react";
 import axios from "axios";
 import { ethers } from "ethers";
 import type { NextPage } from "next";
 import React from "react";
+import { FaCheckCircle } from "react-icons/fa";
 
 import { Header } from "../components/Header";
 import contract from "../constants/contract.json";
@@ -23,6 +39,9 @@ const FittingRoom: NextPage = () => {
   const [accessoryTokenId, setAccessoryTokenId] = React.useState("");
   const [currentAccount, setCurrentAccount] = React.useState(null);
   const [image, setImage] = React.useState("");
+  const [error, setError] = React.useState("");
+  const [txHash, setTxHash] = React.useState("");
+  const [txStatus, setTxStatus] = React.useState("ended");
 
   React.useEffect(() => {
     checkWalletIsConnected();
@@ -69,6 +88,7 @@ const FittingRoom: NextPage = () => {
   };
 
   const setAccessoryHandler = async () => {
+    setError("");
     try {
       const { ethereum } = window;
 
@@ -82,10 +102,13 @@ const FittingRoom: NextPage = () => {
           .attach(contractAddress)
           .connect(signer)
           .setAccessory(tokenId, accessoryAddress, accessoryTokenId);
-
+        setTxStatus("started");
+        setTxHash(nftTxn.hash);
+        await nftTxn.wait();
+        setTxStatus("ended");
         console.log(`Set, see transaction: https://rinkeby.etherscan.io/tx/${nftTxn.hash}`);
       } else {
-        console.log("Ethereum object does not exist");
+        setError("Must be owner of both token. Check you are connected to right wallet");
       }
     } catch (err) {
       console.log(err);
@@ -93,6 +116,9 @@ const FittingRoom: NextPage = () => {
   };
 
   const getData = async () => {
+    setError("");
+    setTxHash("");
+    setTxStatus("");
     try {
       const { ethereum } = window;
 
@@ -178,7 +204,7 @@ const FittingRoom: NextPage = () => {
           >
             <option value="4">Rinkeby</option>
             <option value="137">Polygon mainnet</option>
-            <option value="592">Astar Network mainnet</option>
+            {/* <option value="592">Astar Network mainnet</option> */}
           </Select>
         </Box>
         <Box my="8">
@@ -225,7 +251,7 @@ const FittingRoom: NextPage = () => {
               value={accessoryTokenId}
               onChange={(e) => setAccessoryTokenId(e.target.value)}
             ></Input>
-            <Button onClick={getData}>check</Button>
+            <Button onClick={getData}>Try on</Button>
             {image ? (
               <Center>
                 <Image src={image} w="64" alt=""></Image>{" "}
@@ -244,6 +270,13 @@ const FittingRoom: NextPage = () => {
                 ConnectWallet
               </Button>
             )}
+            {error ? (
+              <Text color={"red"} my="4">
+                {error}
+              </Text>
+            ) : (
+              <></>
+            )}
           </VStack>
         </Box>
         <VStack my="2">
@@ -257,6 +290,21 @@ const FittingRoom: NextPage = () => {
             </Button>
           )}
         </VStack>
+        {txHash && (
+          <Center>
+            <Flex direction={{ base: "column", sm: "row" }} alignItems={"center"}>
+              <Link href={`${explorers[chainId]}${txHash}`} isExternal>
+                <Text
+                  mx="2"
+                  isTruncated
+                  w={{ base: "sm", sm: "md" }}
+                >{`see transaction: ${explorers[chainId]}${txHash}`}</Text>
+              </Link>
+              {txStatus == "started" && <Spinner />}
+              {txStatus == "ended" && <Icon as={FaCheckCircle} w={8} h={8} color="green"></Icon>}
+            </Flex>
+          </Center>
+        )}
       </Container>
     </>
   );

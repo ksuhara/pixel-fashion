@@ -5,8 +5,8 @@ const chocofactoryAddresses = {
 };
 
 const pixelFashionAddresses = {
-  "4": "0x53508cFfa1c9704F25b54108EF0b7dF2cfF509eF",
-  "137": "0x262c4075Bc8dae427b74Db99286ac2811ad995a9",
+  "4": "0xe8527238bec23ac3ad9b48fa2b1f664990249f87",
+  "137": "0x45EBF1401615fa70F90206a2A82dc4183741A993",
   "592": "0xEc9255C57A60335dD838C06846fE6bEF7CAC5BA5",
 };
 

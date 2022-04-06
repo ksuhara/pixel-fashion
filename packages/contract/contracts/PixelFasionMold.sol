@@ -8,6 +8,8 @@ import "@openzeppelin/contracts-upgradeable/utils/StringsUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
 import "@openzeppelin/contracts/interfaces/IERC2981.sol";
 
+import "hardhat/console.sol";
+
 import {NFTDescriptor} from "./NFTDescriptor.sol";
 
 import {IPixelFashion} from "./IPixelFashion.sol";

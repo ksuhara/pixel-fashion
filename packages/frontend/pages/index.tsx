@@ -143,7 +143,7 @@ const Home: NextPage = () => {
         const nftTxn = await moldContract
           .attach(moldAddress)
           .connect(signer)
-          .mintNFT(name, rle, colors, "FFFFFF", address);
+          .mintNFT(name, rle, colors, "F5F5F5", address);
 
         console.log("Mining... please wait");
         setMintingStatus("started");
@@ -223,7 +223,7 @@ const Home: NextPage = () => {
             >
               <option value="4">Rinkeby</option>
               <option value="137">Polygon mainnet</option>
-              <option value="592">Astar Network mainnet</option>
+              {/* <option value="592">Astar Network mainnet</option> */}
             </Select>
           </Box>
           <VStack my="8">

@@ -20,7 +20,7 @@ library NFTDescriptor {
    */
   function constructTokenURI(TokenURIParams memory params, string[][] memory palettes)
     public
-    view
+    pure
     returns (string memory)
   {
     string memory image = generateSVGImage(
@@ -54,7 +54,7 @@ library NFTDescriptor {
    */
   function generateSVGImage(MultiPartRLEToSVG.SVGParams memory params, string[][] memory palettes)
     public
-    view
+    pure
     returns (string memory svg)
   {
     return Base64.encode(bytes(MultiPartRLEToSVG.generateSVG(params, palettes)));
